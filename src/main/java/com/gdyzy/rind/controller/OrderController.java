@@ -22,6 +22,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * 订单
+ */
 @RestController
 @RequestMapping("/order")
 @Slf4j
@@ -36,6 +39,11 @@ public class OrderController {
     @Autowired
     private ShoppingCartService shoppingCartService;
 
+    /**
+     * 用户下单
+     * @param orders
+     * @return
+     */
     @PostMapping("/submit")
     public R<String> submit(@RequestBody Orders orders){
         log.info("订单数据：{}", orders);

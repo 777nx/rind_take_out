@@ -33,11 +33,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
     @Autowired
     private OrderDetailService orderDetailService;
 
+    /**
+     * 用户下单
+     * @param orders
+     */
     @Override
     @Transactional
     public void submit(Orders orders) {
 
+        //获得当前用户id
         Long userId = BaseContext.getCurrentId();
+        //查询当前用户的购物车数据
         LambdaQueryWrapper<ShoppingCart> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ShoppingCart::getUserId, userId);
         List<ShoppingCart> shoppingCarts = shoppingCartService.list(wrapper);
@@ -46,7 +52,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
             throw new CustomException("购物车为空，不能下单");
         }
 
+        //查询用户数据
         User user = userService.getById(userId);
+        //查询地址数据
         Long addressBookId = orders.getAddressBookId();
         AddressBook addressBook = addressBookService.getById(addressBookId);
         if (addressBook == null){
@@ -85,9 +93,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Orders> implement
                 + (addressBook.getDistrictName() == null ? "" : addressBook.getDistrictName())
                 + (addressBook.getDetail() == null ? "" : addressBook.getDetail()));
 
+        //向订单表插入数据，一条数据
         this.save(orders);
 
+        //向订单明细表插入数据，多条数据
         orderDetailService.saveBatch(orderDetails);
+        //清空购物车数据
         shoppingCartService.remove(wrapper);
     }
 }
